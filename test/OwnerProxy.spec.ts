@@ -1,73 +1,116 @@
 import { ethers } from "hardhat";
-import { OwnerProxy, OwnerProxy__factory, VerifySignature, VerifySignature__factory } from "../typechain-types";
+import {
+  OwnerProxy,
+  OwnerProxy__factory,
+  VerifySignature,
+  VerifySignature__factory,
+} from "../typechain-types";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("OwnerProxy", () => {
-    let verifySignatureContract: VerifySignature;
-    let ownerProxyContract: OwnerProxy;
-    let owner: SignerWithAddress;
-    let signer1: SignerWithAddress;
-    let signer2: SignerWithAddress;
+  let verifySignatureContract: VerifySignature;
+  let ownerProxyContract: OwnerProxy;
+  let owner: SignerWithAddress;
+  let signer1: SignerWithAddress;
+  let signer2: SignerWithAddress;
+  let signer3: SignerWithAddress;
 
-    beforeEach( async () => {
-        [owner, signer1, signer2] = await ethers.getSigners()
-        let verifySignatureFactory = new VerifySignature__factory(signer1);
-        verifySignatureContract = await verifySignatureFactory.deploy();
-        await verifySignatureContract.deployTransaction.wait();
-        console.log(`VerifySignature address: ${verifySignatureContract.address}`);
-        
-        let ownerProxyContractFactory = new OwnerProxy__factory(signer1);
-        ownerProxyContract = await ownerProxyContractFactory.deploy(verifySignatureContract.address);
-        await verifySignatureContract.deployTransaction.wait();
-        console.log(`OwnerProxy address: ${ownerProxyContract.address}`);
+  beforeEach(async () => {
+    [owner, signer1, signer2, signer3] = await ethers.getSigners();
+    let verifySignatureFactory = new VerifySignature__factory(signer1);
+    verifySignatureContract = await verifySignatureFactory.deploy();
+    await verifySignatureContract.deployTransaction.wait();
+    console.log(`VerifySignature address: ${verifySignatureContract.address}`);
 
-    })
+    let ownerProxyContractFactory = new OwnerProxy__factory(signer1);
+    ownerProxyContract = await ownerProxyContractFactory.deploy(
+      verifySignatureContract.address
+    );
+    await verifySignatureContract.deployTransaction.wait();
+    console.log(`OwnerProxy address: ${ownerProxyContract.address}`);
+  });
 
-    describe("set mapping", () => {
-        it("fails if hot and cold wallet are the same", async () => {
-            // given
-            const hotWallet = signer1;
-            const coldWallet = signer1.address;
+  describe("set mapping", () => {
+    it("fails if hot and cold wallet are the same", async () => {
+      // given
+      const hotWallet = signer1;
+      const coldWallet = signer1.address;
 
-            try {
-                // when
-                await ownerProxyContract.connect(hotWallet).setMapping(coldWallet, []);
-                expect(false).to.equal(true);
-              } catch (e: any) {
-                // then
-                expect(e.message.includes("hot and cold wallets cannot be the same"));
-              }
-        });
-        
-        it("fails if signature is incorrect", async () => {
-            // given
-            const hotWallet = signer1;
-            const coldWallet = signer2;
-            const messageHash = await verifySignatureContract.connect(signer2).getMessageHash(hotWallet.address);
-            const signature = await coldWallet.signMessage(ethers.utils.arrayify(messageHash));
+      try {
+        // when
+        await ownerProxyContract.connect(hotWallet).setMapping(coldWallet, []);
+        expect(false).to.equal(true);
+      } catch (e: any) {
+        // then
+        expect(e.message.includes("hot and cold wallets cannot be the same"));
+      }
+    });
 
-            try {
-                // when
-                 await ownerProxyContract.connect(hotWallet).setMapping(coldWallet.address, signature.replace("1", "2"));
-                expect(false).to.equal(true);
-              } catch (e: any) {
-                // then
-                expect(e.message.includes("invalid signature")).to.equal(true);
-              }
-        });
-        it("succeeds if signature is correct", async () => {
-            // given
-            const hotWallet = signer1;
-            const coldWallet = signer2;
-            const messageHash = await verifySignatureContract.connect(signer2).getMessageHash(hotWallet.address);
-            const signature = await coldWallet.signMessage(ethers.utils.arrayify(messageHash));
+    it("fails if signature is incorrect", async () => {
+      // given
+      const hotWallet = signer1;
+      const coldWallet = signer2;
+      const messageHash = await verifySignatureContract
+        .connect(signer2)
+        .getMessageHash(hotWallet.address);
+      const signature = await coldWallet.signMessage(
+        ethers.utils.arrayify(messageHash)
+      );
 
-            // when
-            await ownerProxyContract.connect(hotWallet).setMapping(coldWallet.address, signature);
+      try {
+        // when
+        await ownerProxyContract
+          .connect(hotWallet)
+          .setMapping(coldWallet.address, signature.replace("1", "2"));
+        expect(false).to.equal(true);
+      } catch (e: any) {
+        // then
+        expect(e.message.includes("invalid signature")).to.equal(true);
+      }
+    });
+    it("succeeds if signature is correct", async () => {
+      // given
+      const hotWallet = signer1;
+      const coldWallet = signer2;
+      const messageHash = await verifySignatureContract
+        .connect(signer2)
+        .getMessageHash(hotWallet.address);
+      const signature = await coldWallet.signMessage(
+        ethers.utils.arrayify(messageHash)
+      );
 
-            // then
-            expect(true).to.equal(true);
-        });
-    })
-})
+      // when
+      await ownerProxyContract
+        .connect(hotWallet)
+        .setMapping(coldWallet.address, signature);
+
+      // then
+      expect(true).to.equal(true);
+    });
+
+    it("fails if signature is submitted with other wallet", async () => {
+      // given
+      const hotWallet = signer1;
+      const coldWallet = signer2;
+      const otherWallet = signer3;
+      const messageHash = await verifySignatureContract
+        .connect(signer2)
+        .getMessageHash(hotWallet.address);
+      const signature = await coldWallet.signMessage(
+        ethers.utils.arrayify(messageHash)
+      );
+
+      try {
+        // when
+        await ownerProxyContract
+          .connect(otherWallet)
+          .setMapping(coldWallet.address, signature);
+        expect(false).to.equal(true);
+      } catch (e: any) {
+        // then
+        expect(e.message.includes("invalid signature")).to.equal(true);
+      }
+    });
+  });
+});
