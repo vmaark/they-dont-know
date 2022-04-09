@@ -21,19 +21,45 @@ contract OwnerProxy {
     mapping(address => address) hotToColdWallets;
     mapping(address => address) coldToHotWallets;
 
-    function setMapping(address coldWallet) external {
-        require(
-            coldWallet != msg.sender,
-            "hot and cold wallets cannot be the same"
-        );
+    address verifySignature;
 
-        hotToColdWallets[msg.sender] = coldWallet;
-        coldToHotWallets[coldWallet] = msg.sender;
+    constructor(address _verifySignature) {
+        verifySignature = _verifySignature;
     }
 
-    function unsetMapping(address coldWallet) external {
+    /**
+    @param _coldWallet the _signer in the verified message
+    @param _sig signature from personal_sign
+     */
+    function setMapping(address _coldWallet, bytes memory _sig) external {
+        require(
+            _coldWallet != msg.sender,
+            "hot and cold wallets cannot be the same"
+        );
+        require(
+            IVerifySignature(verifySignature).verify(
+                _coldWallet,
+                msg.sender,
+                _sig
+            ),
+            "invalid signature"
+        );
+
+        hotToColdWallets[msg.sender] = _coldWallet;
+        coldToHotWallets[_coldWallet] = msg.sender;
+    }
+
+    function unsetMapping(address _coldWallet, bytes memory _sig) external {
+        require(
+            IVerifySignature(verifySignature).verify(
+                _coldWallet,
+                msg.sender,
+                _sig
+            ),
+            "invalid signature"
+        );
         hotToColdWallets[msg.sender] = address(0);
-        coldToHotWallets[coldWallet] = address(0);
+        coldToHotWallets[_coldWallet] = address(0);
     }
 
     function balanceOf(address contractAddress, address owner)
