@@ -6,18 +6,18 @@ function App() {
   return (
     <>
       <header className="App-header">
-        <p>They don't know</p>
+        <h1>They don't know</h1>
       </header>
       <div style={{ display: "flex", flex: 1, flexDirection: "row" }}>
         <div
           style={{
             display: "flex",
-            flex: 3,
+            flex: 2,
             flexDirection: "column",
             paddingLeft: "50px",
           }}
         >
-          <div>Socialize without compromise!</div>
+          <h2>Socialize without compromise!</h2>
           <div className="App-description">
             “They don't know” is a protocol you have been secretly waiting for
             since you finally bought your precious cold wallet. It gives you
@@ -25,7 +25,7 @@ function App() {
             cold wallet, without losing the ability to use them in services that
             support the protocol.
           </div>
-          <div>How?</div>
+          <h2>How?</h2>
           <div className="App-how">
             This is made possible with off-chain cryptography - signing a
             message containing your hot wallet address with your cold wallet.
@@ -33,7 +33,14 @@ function App() {
             and stored in a smart contract.
           </div>
         </div>
-        <div style={{ display: "flex", flex: 1, flexDirection: "column" }}>
+        <div
+          style={{
+            display: "flex",
+            flex: 1,
+            flexDirection: "column",
+            padding: "10px",
+          }}
+        >
           <img src={logo} className="App-logo" alt="logo" />
         </div>
       </div>
@@ -42,6 +49,7 @@ function App() {
           padding: "50px",
           display: "flex",
           flexDirection: "row",
+          justifyContent: "space-between",
           flexWrap: "wrap",
         }}
       >
@@ -89,12 +97,14 @@ function App() {
             One time secure sign message in Metamask with your cold wallet, than
             disconnect your cold wallet forever.
           </p>
+          <div style={{ display: "flex", flex: 1 }} />
           <button style={{ width: "50%", alignSelf: "center" }}>Sign</button>
         </div>
         <div style={{ fontSize: 36, alignSelf: "center" }}>👉🏿</div>
         <div className="App-card">
           <h3 style={{ margin: 0 }}>Transaction</h3>
           <p>Switch and connect your hot wallet, then press submit.</p>
+          <div style={{ display: "flex", flex: 1 }} />
           <button
             style={{
               width: "50%",
