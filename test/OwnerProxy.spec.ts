@@ -32,13 +32,42 @@ describe("OwnerProxy", () => {
 
             try {
                 // when
-                 await ownerProxyContract.connect(hotWallet).setMapping(coldWallet, []);
+                await ownerProxyContract.connect(hotWallet).setMapping(coldWallet, []);
                 expect(false).to.equal(true);
               } catch (e: any) {
                 // then
-                console.log(e.message);
                 expect(e.message.includes("hot and cold wallets cannot be the same"));
               }
-        })
+        });
+        
+        it("fails if signature is incorrect", async () => {
+            // given
+            const hotWallet = signer1;
+            const coldWallet = signer2;
+            const messageHash = await verifySignatureContract.connect(signer2).getMessageHash(hotWallet.address);
+            const signature = await coldWallet.signMessage(ethers.utils.arrayify(messageHash));
+
+            try {
+                // when
+                 await ownerProxyContract.connect(hotWallet).setMapping(coldWallet.address, signature.replace("1", "2"));
+                expect(false).to.equal(true);
+              } catch (e: any) {
+                // then
+                expect(e.message.includes("invalid signature")).to.equal(true);
+              }
+        });
+        it("succeeds if signature is correct", async () => {
+            // given
+            const hotWallet = signer1;
+            const coldWallet = signer2;
+            const messageHash = await verifySignatureContract.connect(signer2).getMessageHash(hotWallet.address);
+            const signature = await coldWallet.signMessage(ethers.utils.arrayify(messageHash));
+
+            // when
+            await ownerProxyContract.connect(hotWallet).setMapping(coldWallet.address, signature);
+
+            // then
+            expect(true).to.equal(true);
+        });
     })
 })
