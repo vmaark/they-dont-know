@@ -1,16 +1,16 @@
 import { ethers } from "hardhat";
 import {
-  OwnerProxy,
-  OwnerProxy__factory,
+  DelegateOwnership,
+  DelegateOwnership__factory,
   VerifySignature,
   VerifySignature__factory,
 } from "../typechain-types";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
-describe("OwnerProxy", () => {
+describe("DelegateOwnership", () => {
   let verifySignatureContract: VerifySignature;
-  let ownerProxyContract: OwnerProxy;
+  let delegateOwnershipContract: DelegateOwnership;
   let owner: SignerWithAddress;
   let signer1: SignerWithAddress;
   let signer2: SignerWithAddress;
@@ -23,12 +23,16 @@ describe("OwnerProxy", () => {
     await verifySignatureContract.deployTransaction.wait();
     console.log(`VerifySignature address: ${verifySignatureContract.address}`);
 
-    let ownerProxyContractFactory = new OwnerProxy__factory(signer1);
-    ownerProxyContract = await ownerProxyContractFactory.deploy(
+    let delegateOwnershipContractFactory = new DelegateOwnership__factory(
+      signer1
+    );
+    delegateOwnershipContract = await delegateOwnershipContractFactory.deploy(
       verifySignatureContract.address
     );
     await verifySignatureContract.deployTransaction.wait();
-    console.log(`OwnerProxy address: ${ownerProxyContract.address}`);
+    console.log(
+      `delegateOwnership address: ${delegateOwnershipContract.address}`
+    );
   });
 
   describe("set mapping", () => {
@@ -39,7 +43,9 @@ describe("OwnerProxy", () => {
 
       try {
         // when
-        await ownerProxyContract.connect(hotWallet).setMapping(coldWallet, []);
+        await delegateOwnershipContract
+          .connect(hotWallet)
+          .setMapping(coldWallet, []);
         expect(false).to.equal(true);
       } catch (e: any) {
         // then
@@ -60,7 +66,7 @@ describe("OwnerProxy", () => {
 
       try {
         // when
-        await ownerProxyContract
+        await delegateOwnershipContract
           .connect(hotWallet)
           .setMapping(coldWallet.address, signature.replace("1", "2"));
         expect(false).to.equal(true);
@@ -81,7 +87,7 @@ describe("OwnerProxy", () => {
       );
 
       // when
-      await ownerProxyContract
+      await delegateOwnershipContract
         .connect(hotWallet)
         .setMapping(coldWallet.address, signature);
 
@@ -103,7 +109,7 @@ describe("OwnerProxy", () => {
 
       try {
         // when
-        await ownerProxyContract
+        await delegateOwnershipContract
           .connect(otherWallet)
           .setMapping(coldWallet.address, signature);
         expect(false).to.equal(true);

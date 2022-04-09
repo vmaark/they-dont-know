@@ -17,7 +17,7 @@ interface IVerifySignature {
         returns (address);
 }
 
-contract OwnerProxy {
+contract DelegateOwnership {
     mapping(address => address) hotToColdWallets;
     mapping(address => address) coldToHotWallets;
 
