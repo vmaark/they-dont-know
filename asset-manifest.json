@@ -1,0 +1,14 @@
+{
+  "files": {
+    "main.css": "/static/css/main.dc1975a4.css",
+    "main.js": "/static/js/main.17c9ba5a.js",
+    "static/media/wojak.png": "/static/media/wojak.f2dd60d21242543634f0.png",
+    "index.html": "/index.html",
+    "main.dc1975a4.css.map": "/static/css/main.dc1975a4.css.map",
+    "main.17c9ba5a.js.map": "/static/js/main.17c9ba5a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.dc1975a4.css",
+    "static/js/main.17c9ba5a.js"
+  ]
+}
