@@ -1,11 +1,98 @@
-import React from "react";
+import { FC, useCallback, useState } from "react";
 import logo from "./wojak.png";
 import "./App.css";
+import { ethers } from "ethers";
+import { DelegateOwnership, VerifySignature } from "../../typechain-types";
+import verifySignatureArtifact from "./contracts/VerifySignature.json";
+import delegateOwnershipArtifact from "./contracts/DelegateOwnership.json";
 
-function App() {
+const getEthereumClient = (): any | undefined => {
+  return (
+    (typeof window !== "undefined" && (window as any).ethereum) || undefined
+  );
+};
+const App: FC = () => {
+  const [hotWallet, setHotWallet] = useState<string | undefined>();
+  const [coldWallet, setColdWallet] = useState<string | undefined>();
+  const [signature, setSignature] = useState<string | undefined>();
+  const [selectedAddress, setSelectedAddress] = useState<string | undefined>();
+  const [verifySignatureContract, setVerifySignatureContract] = useState<
+    undefined | VerifySignature
+  >();
+  const [delegateOwnershipContract, setDelegateOwnershipContract] = useState<
+    undefined | DelegateOwnership
+  >();
+  const intializeEthers = useCallback(() => {
+    const provider = new ethers.providers.Web3Provider(
+      (window as any).ethereum,
+      "any"
+    );
+
+    setVerifySignatureContract(
+      new ethers.Contract(
+        "0x5FbDB2315678afecb367f032d93F642f64180aa3",
+        verifySignatureArtifact.abi as any,
+        provider.getSigner(0)
+      ) as VerifySignature
+    );
+    setDelegateOwnershipContract(
+      new ethers.Contract(
+        "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        delegateOwnershipArtifact.abi as any,
+        provider.getSigner(0)
+      ) as DelegateOwnership
+    );
+  }, []);
+
+  const initialize = useCallback(
+    (userAddress: string) => {
+      setSelectedAddress(userAddress);
+      intializeEthers();
+    },
+    [intializeEthers]
+  );
+
+  const connectWallet = useCallback(async () => {
+    const [address] = await getEthereumClient().request({
+      method: "eth_requestAccounts",
+    });
+    initialize(address);
+  }, [initialize]);
+
+  const signMessage = async () => {
+    if (hotWallet != null && verifySignatureContract != null) {
+      const messageHash = await verifySignatureContract?.getMessageHash(
+        hotWallet
+      );
+      const provider = new ethers.providers.Web3Provider(
+        (window as any).ethereum,
+        "any"
+      );
+      const sign = await provider
+        .getSigner(coldWallet)
+        .signMessage(ethers.utils.arrayify(messageHash));
+
+      setSignature(sign);
+    }
+  };
+
+  const submit = async () => {
+    if (
+      hotWallet != null &&
+      coldWallet != null &&
+      delegateOwnershipContract != null &&
+      signature != null
+    ) {
+      await delegateOwnershipContract.setMapping(coldWallet, signature);
+    }
+  };
+
   return (
     <>
       <header className="App-header">
+        <button onClick={connectWallet}>
+          {selectedAddress ? selectedAddress : "Connect"}
+        </button>
         <h1>They don't know</h1>
       </header>
       <div style={{ display: "flex", flex: 1, flexDirection: "row" }}>
@@ -68,6 +155,7 @@ function App() {
                 <text style={{ color: "blue" }}>COLD</text> WALLET
               </text>
               <input
+                onChange={(e) => setColdWallet(e.target.value)}
                 style={{ backgroundColor: "lightskyblue" }}
                 type="text"
               ></input>
@@ -84,6 +172,7 @@ function App() {
                 <text style={{ color: "red" }}>HOT</text> WALLET
               </text>
               <input
+                onChange={(e) => setHotWallet(e.target.value)}
                 style={{ backgroundColor: "darksalmon" }}
                 type="text"
               ></input>
@@ -98,7 +187,12 @@ function App() {
             disconnect your cold wallet forever.
           </p>
           <div style={{ display: "flex", flex: 1 }} />
-          <button style={{ width: "50%", alignSelf: "center" }}>Sign</button>
+          <button
+            style={{ width: "50%", alignSelf: "center" }}
+            onClick={signMessage}
+          >
+            Sign
+          </button>
         </div>
         <div style={{ fontSize: 36, alignSelf: "center" }}>👉🏿</div>
         <div className="App-card">
@@ -111,6 +205,7 @@ function App() {
               justifySelf: "flex-end",
               alignSelf: "center",
             }}
+            onClick={submit}
           >
             Submit
           </button>
@@ -127,6 +222,6 @@ function App() {
       </div>
     </>
   );
-}
+};
 
 export default App;

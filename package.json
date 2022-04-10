@@ -5,7 +5,11 @@
   "main": "index.js",
   "scripts": {
     "compile": "npx hardhat compile",
-    "test": "npx hardhat test"
+    "test": "npx hardhat test",
+    "run.testnet": "hardhat node",
+    "deploy.testnet": "hardhat run scripts/deploy.ts --network localhost",
+    "deploy.rinkeby": "hardhat run scripts/deploy.ts --network rinkeby",
+    "deploy.mainnet": "hardhat run scripts/deploy.ts --network mainnet"
   },
   "author": "",
   "license": "ISC",
