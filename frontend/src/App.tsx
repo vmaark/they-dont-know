@@ -1,9 +1,10 @@
-import { FC, useCallback, useState } from "react";
+import { FC, useCallback, useEffect, useState } from "react";
 import logo from "./wojak.png";
 import "./App.css";
 import { ContractTransaction, ethers } from "ethers";
 import { DelegateOwnership } from "../../typechain-types";
 import delegateOwnershipArtifact from "./contracts/DelegateOwnership.json";
+import { ConfettiEffect } from "./ConfettiEffect";
 
 const getEthereumClient = (): any | undefined => {
   return (
@@ -63,6 +64,7 @@ const App: FC = () => {
         .getSigner(coldWallet)
         .signMessage(ethers.utils.arrayify(messageHash));
 
+      console.log(sign);
       setSignature(sign);
     }
   };
@@ -78,12 +80,23 @@ const App: FC = () => {
       const result: ContractTransaction =
         await delegateOwnershipContract.setMapping(coldWallet, signature);
       await result.wait();
+      setShowConfetti(true);
       setSubmitting(false);
     }
   };
 
+  const [showConfetti, setShowConfetti] = useState(false);
+
   return (
     <>
+      {showConfetti && (
+        <ConfettiEffect
+          recycle={false}
+          numberOfPieces={700}
+          tweenDuration={15000}
+          onConfettiComplete={() => setShowConfetti(false)}
+        />
+      )}
       <header className="App-header">
         <button onClick={connectWallet}>
           {selectedAddress ? selectedAddress : "Connect"}
