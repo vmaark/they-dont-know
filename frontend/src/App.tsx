@@ -1,4 +1,4 @@
-import { FC, useCallback, useEffect, useState } from "react";
+import { FC, useCallback, useState } from "react";
 import logo from "./wojak.png";
 import "./App.css";
 import { ContractTransaction, ethers } from "ethers";
@@ -27,7 +27,7 @@ const App: FC = () => {
 
     setDelegateOwnershipContract(
       new ethers.Contract(
-        "0x5ba7865244109fDad7763258cc2BD11713ef133d",
+        "0x27fDE488e3eD9C39585fa9cb59e98f667AB99808",
         delegateOwnershipArtifact.abi as any,
         provider.getSigner(0)
       ) as DelegateOwnership

@@ -10,7 +10,6 @@ const rinkebyNodeUrl =
   "https://eth-rinkeby.alchemyapi.io/v2/" + process.env.ALCHEMY_KEY;
 
 const rinkebyDeployer = process.env.RINKEBY_DEPLOYER ?? "";
-const mainnetDeployer = process.env.MAINNET_DEPLOYER ?? "";
 const etherscan = process.env.ETHERSCAN ?? "";
 
 let config: HardhatUserConfig = {
