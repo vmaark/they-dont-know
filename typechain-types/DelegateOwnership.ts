@@ -21,9 +21,13 @@ export interface DelegateOwnershipInterface extends utils.Interface {
   contractName: "DelegateOwnership";
   functions: {
     "balanceOf(address,address)": FunctionFragment;
+    "getEthSignedMessageHash(bytes32)": FunctionFragment;
+    "getMessageHash(address)": FunctionFragment;
     "ownerOf(address,uint256)": FunctionFragment;
+    "recover(bytes32,bytes)": FunctionFragment;
     "setMapping(address,bytes)": FunctionFragment;
     "unsetMapping(address,bytes)": FunctionFragment;
+    "verify(address,address,bytes)": FunctionFragment;
   };
 
   encodeFunctionData(
@@ -31,8 +35,20 @@ export interface DelegateOwnershipInterface extends utils.Interface {
     values: [string, string]
   ): string;
   encodeFunctionData(
+    functionFragment: "getEthSignedMessageHash",
+    values: [BytesLike]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "getMessageHash",
+    values: [string]
+  ): string;
+  encodeFunctionData(
     functionFragment: "ownerOf",
     values: [string, BigNumberish]
+  ): string;
+  encodeFunctionData(
+    functionFragment: "recover",
+    values: [BytesLike, BytesLike]
   ): string;
   encodeFunctionData(
     functionFragment: "setMapping",
@@ -42,14 +58,28 @@ export interface DelegateOwnershipInterface extends utils.Interface {
     functionFragment: "unsetMapping",
     values: [string, BytesLike]
   ): string;
+  encodeFunctionData(
+    functionFragment: "verify",
+    values: [string, string, BytesLike]
+  ): string;
 
   decodeFunctionResult(functionFragment: "balanceOf", data: BytesLike): Result;
+  decodeFunctionResult(
+    functionFragment: "getEthSignedMessageHash",
+    data: BytesLike
+  ): Result;
+  decodeFunctionResult(
+    functionFragment: "getMessageHash",
+    data: BytesLike
+  ): Result;
   decodeFunctionResult(functionFragment: "ownerOf", data: BytesLike): Result;
+  decodeFunctionResult(functionFragment: "recover", data: BytesLike): Result;
   decodeFunctionResult(functionFragment: "setMapping", data: BytesLike): Result;
   decodeFunctionResult(
     functionFragment: "unsetMapping",
     data: BytesLike
   ): Result;
+  decodeFunctionResult(functionFragment: "verify", data: BytesLike): Result;
 
   events: {};
 }
@@ -88,11 +118,27 @@ export interface DelegateOwnership extends BaseContract {
       overrides?: CallOverrides
     ): Promise<[BigNumber] & { balance: BigNumber }>;
 
+    getEthSignedMessageHash(
+      _messageHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
+    getMessageHash(
+      _hotWalletAddress: string,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
+
     ownerOf(
       contractAddress: string,
       tokenId: BigNumberish,
       overrides?: CallOverrides
     ): Promise<[string] & { owner: string }>;
+
+    recover(
+      _ethSignedMessageHash: BytesLike,
+      _sig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[string]>;
 
     setMapping(
       _coldWallet: string,
@@ -105,6 +151,13 @@ export interface DelegateOwnership extends BaseContract {
       _sig: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
     ): Promise<ContractTransaction>;
+
+    verify(
+      _signer: string,
+      _hotWalletAddress: string,
+      _sig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<[boolean]>;
   };
 
   balanceOf(
@@ -113,9 +166,25 @@ export interface DelegateOwnership extends BaseContract {
     overrides?: CallOverrides
   ): Promise<BigNumber>;
 
+  getEthSignedMessageHash(
+    _messageHash: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  getMessageHash(
+    _hotWalletAddress: string,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
   ownerOf(
     contractAddress: string,
     tokenId: BigNumberish,
+    overrides?: CallOverrides
+  ): Promise<string>;
+
+  recover(
+    _ethSignedMessageHash: BytesLike,
+    _sig: BytesLike,
     overrides?: CallOverrides
   ): Promise<string>;
 
@@ -131,6 +200,13 @@ export interface DelegateOwnership extends BaseContract {
     overrides?: Overrides & { from?: string | Promise<string> }
   ): Promise<ContractTransaction>;
 
+  verify(
+    _signer: string,
+    _hotWalletAddress: string,
+    _sig: BytesLike,
+    overrides?: CallOverrides
+  ): Promise<boolean>;
+
   callStatic: {
     balanceOf(
       contractAddress: string,
@@ -138,9 +214,25 @@ export interface DelegateOwnership extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getEthSignedMessageHash(
+      _messageHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    getMessageHash(
+      _hotWalletAddress: string,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
     ownerOf(
       contractAddress: string,
       tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<string>;
+
+    recover(
+      _ethSignedMessageHash: BytesLike,
+      _sig: BytesLike,
       overrides?: CallOverrides
     ): Promise<string>;
 
@@ -155,6 +247,13 @@ export interface DelegateOwnership extends BaseContract {
       _sig: BytesLike,
       overrides?: CallOverrides
     ): Promise<void>;
+
+    verify(
+      _signer: string,
+      _hotWalletAddress: string,
+      _sig: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<boolean>;
   };
 
   filters: {};
@@ -166,9 +265,25 @@ export interface DelegateOwnership extends BaseContract {
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
+    getEthSignedMessageHash(
+      _messageHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    getMessageHash(
+      _hotWalletAddress: string,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
     ownerOf(
       contractAddress: string,
       tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<BigNumber>;
+
+    recover(
+      _ethSignedMessageHash: BytesLike,
+      _sig: BytesLike,
       overrides?: CallOverrides
     ): Promise<BigNumber>;
 
@@ -182,6 +297,13 @@ export interface DelegateOwnership extends BaseContract {
       _coldWallet: string,
       _sig: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<BigNumber>;
+
+    verify(
+      _signer: string,
+      _hotWalletAddress: string,
+      _sig: BytesLike,
+      overrides?: CallOverrides
     ): Promise<BigNumber>;
   };
 
@@ -192,9 +314,25 @@ export interface DelegateOwnership extends BaseContract {
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
+    getEthSignedMessageHash(
+      _messageHash: BytesLike,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    getMessageHash(
+      _hotWalletAddress: string,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
     ownerOf(
       contractAddress: string,
       tokenId: BigNumberish,
+      overrides?: CallOverrides
+    ): Promise<PopulatedTransaction>;
+
+    recover(
+      _ethSignedMessageHash: BytesLike,
+      _sig: BytesLike,
       overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
 
@@ -208,6 +346,13 @@ export interface DelegateOwnership extends BaseContract {
       _coldWallet: string,
       _sig: BytesLike,
       overrides?: Overrides & { from?: string | Promise<string> }
+    ): Promise<PopulatedTransaction>;
+
+    verify(
+      _signer: string,
+      _hotWalletAddress: string,
+      _sig: BytesLike,
+      overrides?: CallOverrides
     ): Promise<PopulatedTransaction>;
   };
 }

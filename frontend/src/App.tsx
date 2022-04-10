@@ -1,9 +1,8 @@
 import { FC, useCallback, useState } from "react";
 import logo from "./wojak.png";
 import "./App.css";
-import { ethers } from "ethers";
-import { DelegateOwnership, VerifySignature } from "../../typechain-types";
-import verifySignatureArtifact from "./contracts/VerifySignature.json";
+import { ContractTransaction, ethers } from "ethers";
+import { DelegateOwnership } from "../../typechain-types";
 import delegateOwnershipArtifact from "./contracts/DelegateOwnership.json";
 
 const getEthereumClient = (): any | undefined => {
@@ -16,9 +15,6 @@ const App: FC = () => {
   const [coldWallet, setColdWallet] = useState<string | undefined>();
   const [signature, setSignature] = useState<string | undefined>();
   const [selectedAddress, setSelectedAddress] = useState<string | undefined>();
-  const [verifySignatureContract, setVerifySignatureContract] = useState<
-    undefined | VerifySignature
-  >();
   const [delegateOwnershipContract, setDelegateOwnershipContract] = useState<
     undefined | DelegateOwnership
   >();
@@ -28,21 +24,16 @@ const App: FC = () => {
       "any"
     );
 
-    setVerifySignatureContract(
-      new ethers.Contract(
-        "0x5FbDB2315678afecb367f032d93F642f64180aa3",
-        verifySignatureArtifact.abi as any,
-        provider.getSigner(0)
-      ) as VerifySignature
-    );
     setDelegateOwnershipContract(
       new ethers.Contract(
-        "0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512",
+        "0x5ba7865244109fDad7763258cc2BD11713ef133d",
         delegateOwnershipArtifact.abi as any,
         provider.getSigner(0)
       ) as DelegateOwnership
     );
   }, []);
+
+  const [submitting, setSubmitting] = useState(false);
 
   const initialize = useCallback(
     (userAddress: string) => {
@@ -60,8 +51,8 @@ const App: FC = () => {
   }, [initialize]);
 
   const signMessage = async () => {
-    if (hotWallet != null && verifySignatureContract != null) {
-      const messageHash = await verifySignatureContract?.getMessageHash(
+    if (hotWallet != null && delegateOwnershipContract != null) {
+      const messageHash = await delegateOwnershipContract?.getMessageHash(
         hotWallet
       );
       const provider = new ethers.providers.Web3Provider(
@@ -83,7 +74,11 @@ const App: FC = () => {
       delegateOwnershipContract != null &&
       signature != null
     ) {
-      await delegateOwnershipContract.setMapping(coldWallet, signature);
+      setSubmitting(true);
+      const result: ContractTransaction =
+        await delegateOwnershipContract.setMapping(coldWallet, signature);
+      await result.wait();
+      setSubmitting(false);
     }
   };
 
@@ -207,7 +202,7 @@ const App: FC = () => {
             }}
             onClick={submit}
           >
-            Submit
+            {submitting ? <div className="lds-dual-ring" /> : "Submit"}
           </button>
         </div>
         <div style={{ fontSize: 36, alignSelf: "center" }}>👉🏿</div>

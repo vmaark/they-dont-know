@@ -3,29 +3,11 @@
 pragma solidity ^0.8.10;
 
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "./VerifySignature.sol";
 
-interface IVerifySignature {
-    function verify(
-        address _signer,
-        address _hotWallet,
-        bytes memory _sig
-    ) external pure returns (bool);
-
-    function recover(bytes32 _ethSignedMessageHash, bytes memory _sig)
-        external
-        pure
-        returns (address);
-}
-
-contract DelegateOwnership {
+contract DelegateOwnership is VerifySignature {
     mapping(address => address) hotToColdWallets;
     mapping(address => address) coldToHotWallets;
-
-    address verifySignature;
-
-    constructor(address _verifySignature) {
-        verifySignature = _verifySignature;
-    }
 
     /**
     @param _coldWallet the _signer in the verified message
@@ -37,11 +19,7 @@ contract DelegateOwnership {
             "hot and cold wallets cannot be the same"
         );
         require(
-            IVerifySignature(verifySignature).verify(
-                _coldWallet,
-                msg.sender,
-                _sig
-            ),
+            this.verify(_coldWallet, msg.sender, _sig),
             "invalid signature"
         );
 
@@ -51,11 +29,7 @@ contract DelegateOwnership {
 
     function unsetMapping(address _coldWallet, bytes memory _sig) external {
         require(
-            IVerifySignature(verifySignature).verify(
-                _coldWallet,
-                msg.sender,
-                _sig
-            ),
+            this.verify(_coldWallet, msg.sender, _sig),
             "invalid signature"
         );
         hotToColdWallets[msg.sender] = address(0);

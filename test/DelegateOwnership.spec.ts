@@ -2,14 +2,11 @@ import { ethers } from "hardhat";
 import {
   DelegateOwnership,
   DelegateOwnership__factory,
-  VerifySignature,
-  VerifySignature__factory,
 } from "../typechain-types";
 import { expect } from "chai";
 import { SignerWithAddress } from "@nomiclabs/hardhat-ethers/signers";
 
 describe("DelegateOwnership", () => {
-  let verifySignatureContract: VerifySignature;
   let delegateOwnershipContract: DelegateOwnership;
   let owner: SignerWithAddress;
   let signer1: SignerWithAddress;
@@ -18,18 +15,11 @@ describe("DelegateOwnership", () => {
 
   beforeEach(async () => {
     [owner, signer1, signer2, signer3] = await ethers.getSigners();
-    let verifySignatureFactory = new VerifySignature__factory(signer1);
-    verifySignatureContract = await verifySignatureFactory.deploy();
-    await verifySignatureContract.deployTransaction.wait();
-    console.log(`VerifySignature address: ${verifySignatureContract.address}`);
-
     let delegateOwnershipContractFactory = new DelegateOwnership__factory(
       signer1
     );
-    delegateOwnershipContract = await delegateOwnershipContractFactory.deploy(
-      verifySignatureContract.address
-    );
-    await verifySignatureContract.deployTransaction.wait();
+    delegateOwnershipContract = await delegateOwnershipContractFactory.deploy();
+    await delegateOwnershipContract.deployTransaction.wait();
     console.log(
       `delegateOwnership address: ${delegateOwnershipContract.address}`
     );
@@ -57,7 +47,7 @@ describe("DelegateOwnership", () => {
       // given
       const hotWallet = signer1;
       const coldWallet = signer2;
-      const messageHash = await verifySignatureContract
+      const messageHash = await delegateOwnershipContract
         .connect(signer2)
         .getMessageHash(hotWallet.address);
       const signature = await coldWallet.signMessage(
@@ -75,11 +65,12 @@ describe("DelegateOwnership", () => {
         expect(e.message.includes("invalid signature")).to.equal(true);
       }
     });
+
     it("succeeds if signature is correct", async () => {
       // given
       const hotWallet = signer1;
       const coldWallet = signer2;
-      const messageHash = await verifySignatureContract
+      const messageHash = await delegateOwnershipContract
         .connect(signer2)
         .getMessageHash(hotWallet.address);
       const signature = await coldWallet.signMessage(
@@ -100,7 +91,7 @@ describe("DelegateOwnership", () => {
       const hotWallet = signer1;
       const coldWallet = signer2;
       const otherWallet = signer3;
-      const messageHash = await verifySignatureContract
+      const messageHash = await delegateOwnershipContract
         .connect(signer2)
         .getMessageHash(hotWallet.address);
       const signature = await coldWallet.signMessage(

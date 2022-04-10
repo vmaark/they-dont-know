@@ -24,11 +24,7 @@ async function main() {
 
   console.log("Network name", network.name);
   console.log("Chain id", network.config.chainId);
-  const verifySignatureAddress = await deployContract(
-    deployer,
-    "VerifySignature"
-  );
-  await deployContract(deployer, "DelegateOwnership", verifySignatureAddress);
+  await deployContract(deployer, "DelegateOwnership");
 }
 
 async function deployContract(

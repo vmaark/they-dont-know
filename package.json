@@ -9,12 +9,14 @@
     "run.testnet": "hardhat node",
     "deploy.testnet": "hardhat run scripts/deploy.ts --network localhost",
     "deploy.rinkeby": "hardhat run scripts/deploy.ts --network rinkeby",
-    "deploy.mainnet": "hardhat run scripts/deploy.ts --network mainnet"
+    "deploy.mainnet": "hardhat run scripts/deploy.ts --network mainnet",
+    "verify.rinkeby": "npx hardhat verify --network rinkeby"
   },
   "author": "",
   "license": "ISC",
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.4",
+    "@nomiclabs/hardhat-etherscan": "^3.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.2",
     "@typechain/ethers-v5": "^9.0.0",
     "@typechain/hardhat": "^4.0.0",
