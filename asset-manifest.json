@@ -1,14 +1,14 @@
 {
   "files": {
     "main.css": "/they-dont-know/static/css/main.dc1975a4.css",
-    "main.js": "/they-dont-know/static/js/main.7707dec5.js",
+    "main.js": "/they-dont-know/static/js/main.06c04429.js",
     "static/media/wojak.png": "/they-dont-know/static/media/wojak.f2dd60d21242543634f0.png",
     "index.html": "/they-dont-know/index.html",
     "main.dc1975a4.css.map": "/they-dont-know/static/css/main.dc1975a4.css.map",
-    "main.7707dec5.js.map": "/they-dont-know/static/js/main.7707dec5.js.map"
+    "main.06c04429.js.map": "/they-dont-know/static/js/main.06c04429.js.map"
   },
   "entrypoints": [
     "static/css/main.dc1975a4.css",
-    "static/js/main.7707dec5.js"
+    "static/js/main.06c04429.js"
   ]
 }
