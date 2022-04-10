@@ -22,6 +22,10 @@ contract DelegateOwnership is VerifySignature {
             this.verify(_coldWallet, msg.sender, _sig),
             "invalid signature"
         );
+        require(
+            coldToHotWallets[msg.sender] == address(0),
+            "caller is already being used as a cold wallet"
+        );
 
         hotToColdWallets[msg.sender] = _coldWallet;
         coldToHotWallets[_coldWallet] = msg.sender;
@@ -42,6 +46,11 @@ contract DelegateOwnership is VerifySignature {
         returns (uint256 balance)
     {
         uint256 hotBalance = IERC721(contractAddress).balanceOf(owner);
+
+        if (hotToColdWallets[owner] == address(0)) {
+            return hotBalance;
+        }
+
         uint256 coldBalance = IERC721(contractAddress).balanceOf(
             hotToColdWallets[owner]
         );

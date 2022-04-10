@@ -25,10 +25,6 @@ declare module "hardhat/types/runtime" {
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.DelegateOwnership__factory>;
     getContractFactory(
-      name: "IVerifySignature",
-      signerOrOptions?: ethers.Signer | FactoryOptions
-    ): Promise<Contracts.IVerifySignature__factory>;
-    getContractFactory(
       name: "VerifySignature",
       signerOrOptions?: ethers.Signer | FactoryOptions
     ): Promise<Contracts.VerifySignature__factory>;
@@ -48,11 +44,6 @@ declare module "hardhat/types/runtime" {
       address: string,
       signer?: ethers.Signer
     ): Promise<Contracts.DelegateOwnership>;
-    getContractAt(
-      name: "IVerifySignature",
-      address: string,
-      signer?: ethers.Signer
-    ): Promise<Contracts.IVerifySignature>;
     getContractAt(
       name: "VerifySignature",
       address: string,
