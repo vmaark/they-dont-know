@@ -27,7 +27,7 @@ const App: FC = () => {
 
     setDelegateOwnershipContract(
       new ethers.Contract(
-        "0x27fDE488e3eD9C39585fa9cb59e98f667AB99808",
+        "0x6EB268d779831574e4F403347F2120855002260a",
         delegateOwnershipArtifact.abi as any,
         provider.getSigner(0)
       ) as DelegateOwnership
